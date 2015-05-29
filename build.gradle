@@ -55,9 +55,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Hiroyuki Sato"]
   spec.summary       = %[Apache Log parser plugin for Embulk]
   spec.description   = %[Parses Apache Log files read by other file input plugins.]
-  spec.email         = ["hsato@archsystem.com"]
+  spec.email         = ["hiroysato@gmail.com"]
   spec.licenses      = ["MIT"]
-  # TODO set this: spec.homepage      = "https://github.com/hsato/embulk-parser-apache-log"
+  spec.homepage      = "https://github.com/hiroyuki-sato/embulk-parser-apache-log"
 
   spec.files         = `git ls-files`.split("\n") + Dir["classpath/*.jar"]
   spec.test_files    = spec.files.grep(%r"^(test|spec)/")

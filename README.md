@@ -1,6 +1,6 @@
 # Apache Log parser plugin for Embulk
 
-TODO: Write short description here and build.gradle file.
+Embulk parser plugin for apache log (common, combined)
 
 ## Overview
 
@@ -9,8 +9,7 @@ TODO: Write short description here and build.gradle file.
 
 ## Configuration
 
-- **property1**: description (string, required)
-- **property2**: description (integer, default: default-value)
+- **format**: log format(common,combined) (string, default: common)
 
 ## Example
 
@@ -19,8 +18,7 @@ in:
   type: any file input plugin type
   parser:
     type: apache-log
-    property1: example1
-    property2: example2
+    format: common
 ```
 
 (If guess supported) you don't have to write `parser:` section in the configuration file. After writing `in:` section, you can let embulk guess `parser:` section using this command:
