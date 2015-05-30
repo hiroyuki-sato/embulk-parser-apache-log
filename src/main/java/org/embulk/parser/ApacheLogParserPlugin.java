@@ -30,6 +30,8 @@ import static org.embulk.spi.type.Types.TIMESTAMP;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Throwables;
+
 public class ApacheLogParserPlugin
         implements ParserPlugin
 {
@@ -99,7 +101,7 @@ public class ApacheLogParserPlugin
                                                      Pattern.CASE_INSENSITIVE
                                                    | Pattern.DOTALL);
         Matcher accessLogEntryMatcher;
-        TimestampParser time_parser = new TimestampParser("%d/%b/%Y:%T %z",task);
+        final TimestampParser time_parser = new TimestampParser("%d/%b/%Y:%T %z",task);
 
         while( input.nextFile() ){
             while(true){
@@ -111,8 +113,7 @@ public class ApacheLogParserPlugin
               accessLogEntryMatcher = accessLogPattern.matcher(line);
 
               if(!accessLogEntryMatcher.matches()){
-                // TODO  raise exception.
-                continue;
+                throw new RuntimeException("unmatched line" + line);
               }
 
               pageBuilder.setString(0,accessLogEntryMatcher.group(1));
@@ -120,8 +121,8 @@ public class ApacheLogParserPlugin
               pageBuilder.setString(2,accessLogEntryMatcher.group(3));
               try {
                   pageBuilder.setTimestamp(3,time_parser.parse(accessLogEntryMatcher.group(4)));
-              } catch(TimestampParseException e) {
-                // TODO
+              } catch(TimestampParseException ex) {
+                throw Throwables.propagate(ex);
               }
               pageBuilder.setString(4,accessLogEntryMatcher.group(5));
               pageBuilder.setString(5,accessLogEntryMatcher.group(6));
@@ -140,20 +141,20 @@ public class ApacheLogParserPlugin
 
     private String getAccessLogRegex(LogFormat type)
     {
-        String rexa = "(\\d+(?:\\.\\d+){3})";  // an IP address
-        String rexs = "(\\S+)";                // a single token (no spaces)
-        String rexdt = "\\[([^\\]]+)\\]";      // something between [ and ]
-        String rexstr = "\"([^\"]*?)\"";       // a quoted string
-        String rexi = "(\\d+)";                // unsigned integer
-        String rexp = "\"(\\S+)\\s(\\S+)\\s(\\S+)\""; // method, path, protocol
+        final String rexa = "(\\d+(?:\\.\\d+){3})";  // an IP address
+        final String rexs = "(\\S+)";                // a single token (no spaces)
+        final String rexdt = "\\[([^\\]]+)\\]";      // something between [ and ]
+        final String rexstr = "\"([^\"]*?)\"";       // a quoted string
+        final String rexi = "(\\d+)";                // unsigned integer
+        final String rexp = "\"(\\S+)\\s(\\S+)\\s(\\S+)\""; // method, path, protocol
         String rex;
 
         if( type == LogFormat.combined ){
-          rex = String.join( " ", rexa, rexs, rexs, rexdt, rexp,
-                             rexi, rexi, rexstr, rexstr );
+          rex = "^" + String.join( " ", rexa, rexs, rexs, rexdt, rexp,
+                             rexi, rexi, rexstr, rexstr) + "$";
         } else {
-          rex = String.join( " ", rexa, rexs, rexs, rexdt, rexp,
-                             rexi, rexi);
+          rex = "^" + String.join( " ", rexa, rexs, rexs, rexdt, rexp,
+                             rexi, rexi) + "$";
         }
 
         return rex;
