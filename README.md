@@ -9,7 +9,7 @@ Embulk parser plugin for apache log (common, combined)
 
 ## Configuration
 
-- **format**: log format(common,combined) (string, default: common)
+- **format**: log format(common,combined) (string, default: combined)
 
 ## Example
 
@@ -21,11 +21,8 @@ in:
     format: common
 ```
 
-(If guess supported) you don't have to write `parser:` section in the configuration file. After writing `in:` section, you can let embulk guess `parser:` section using this command:
-
 ```
-$ embulk install embulk-parser-apache-log
-$ embulk guess -g apache-log config.yml -o guessed.yml
+$ embulk gem install embulk-parser-apache-log
 ```
 
 ## Build
