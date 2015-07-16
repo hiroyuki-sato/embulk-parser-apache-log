@@ -51,7 +51,7 @@ public class ApacheLogParserPlugin
          }
     }
     public interface PluginTask
-            extends Task, LineDecoder.DecoderTask, TimestampParser.ParserTask
+            extends Task, LineDecoder.DecoderTask, TimestampParser.Task
     {
 
         @Config("format")
@@ -67,20 +67,20 @@ public class ApacheLogParserPlugin
         ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
         final LogFormat format = task.getFormat();
 
-        columns.add(new ColumnConfig("remote_host",STRING ,null));
-        columns.add(new ColumnConfig("identity_check",STRING ,null));
-        columns.add(new ColumnConfig("user",STRING ,null));
-        columns.add(new ColumnConfig("datetime",TIMESTAMP,null));
-        columns.add(new ColumnConfig("method",STRING ,null));
-        columns.add(new ColumnConfig("path",STRING ,null));
-        columns.add(new ColumnConfig("protocol",STRING ,null));
-        columns.add(new ColumnConfig("status",STRING ,null));
-        columns.add(new ColumnConfig("size",STRING ,null));
+        columns.add(new ColumnConfig("remote_host",STRING ,config));
+        columns.add(new ColumnConfig("identity_check",STRING ,config));
+        columns.add(new ColumnConfig("user",STRING ,config));
+        columns.add(new ColumnConfig("datetime",TIMESTAMP,config));
+        columns.add(new ColumnConfig("method",STRING ,config));
+        columns.add(new ColumnConfig("path",STRING ,config));
+        columns.add(new ColumnConfig("protocol",STRING ,config));
+        columns.add(new ColumnConfig("status",STRING ,config));
+        columns.add(new ColumnConfig("size",STRING ,config));
 
         // combined
         if( format == LogFormat.combined ){
-          columns.add(new ColumnConfig("referer",STRING ,null));
-          columns.add(new ColumnConfig("user_agent",STRING ,null));
+          columns.add(new ColumnConfig("referer",STRING ,config));
+          columns.add(new ColumnConfig("user_agent",STRING ,config));
         }
 
         Schema schema = new SchemaConfig(columns).toSchema();
@@ -101,7 +101,7 @@ public class ApacheLogParserPlugin
                                                      Pattern.CASE_INSENSITIVE
                                                    | Pattern.DOTALL);
         Matcher accessLogEntryMatcher;
-        final TimestampParser time_parser = new TimestampParser("%d/%b/%Y:%T %z",task);
+        final TimestampParser time_parser = new TimestampParser(task.getJRuby(),"%d/%b/%Y:%T %z",task.getDefaultTimeZone());
 
         while( input.nextFile() ){
             while(true){
