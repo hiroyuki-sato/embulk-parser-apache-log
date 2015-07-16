@@ -71,3 +71,11 @@ end
     }
 }
 clean { delete "${project.name}.gemspec" }
+
+// for deprecation check
+//
+//allprojects {
+//    tasks.withType(JavaCompile) {
+//        options.compilerArgs << "-Xlint:deprecation"
+//    }
+//}
