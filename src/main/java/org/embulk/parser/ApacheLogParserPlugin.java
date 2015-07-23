@@ -144,17 +144,18 @@ public class ApacheLogParserPlugin
         final String rexa = "(\\d+(?:\\.\\d+){3})";  // an IP address
         final String rexs = "(\\S+)";                // a single token (no spaces)
         final String rexdt = "\\[([^\\]]+)\\]";      // something between [ and ]
-        final String rexstr = "\"([^\"]*?)\"";       // a quoted string
+        final String rexstr = "\"(.*?)\"";       // a quoted string
         final String rexi = "(\\d+)";                // unsigned integer
-        final String rexp = "\"(\\S+)\\s(\\S+)\\s(\\S+)\""; // method, path, protocol
+        final String rexp = "\"(\\S+)\\s(.*?)\\s(HTTP\\/\\d+\\.\\d+)\""; // method, path, protocol
+
         String rex;
 
         if( type == LogFormat.combined ){
           rex = "^" + String.join( " ", rexa, rexs, rexs, rexdt, rexp,
-                             rexi, rexi, rexstr, rexstr) + "$";
+                             rexi, rexs, rexstr, rexstr) + "$";
         } else {
           rex = "^" + String.join( " ", rexa, rexs, rexs, rexdt, rexp,
-                             rexi, rexi) + "$";
+                             rexi, rexs) + "$";
         }
 
         return rex;
