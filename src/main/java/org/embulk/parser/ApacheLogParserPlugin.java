@@ -87,6 +87,9 @@ public class ApacheLogParserPlugin
         control.run(task.dump(), schema);
     }
 
+    private static interface ParserIntlTask extends Task, TimestampParser.Task {}
+    private static interface ParserIntlColumnOption extends Task, TimestampParser.TimestampColumnOption {}
+
     @Override
     public void run(TaskSource taskSource, Schema schema,
             FileInput input, PageOutput output)
@@ -101,7 +104,14 @@ public class ApacheLogParserPlugin
                                                      Pattern.CASE_INSENSITIVE
                                                    | Pattern.DOTALL);
         Matcher accessLogEntryMatcher;
-        final TimestampParser time_parser = new TimestampParser(task.getJRuby(),"%d/%b/%Y:%T %z",task.getDefaultTimeZone());
+        // TODO: Switch to a newer TimestampParser constructor after a reasonable interval.
+        // Traditional constructor is used here for compatibility.
+        final ConfigSource configSource = Exec.newConfigSource();
+        configSource.set("format", "%d/%b/%Y:%T %z");
+        configSource.set("timezone", task.getDefaultTimeZone());
+        final TimestampParser time_parser = new TimestampParser(
+            Exec.newConfigSource().loadConfig(ParserIntlTask.class),
+            configSource.loadConfig(ParserIntlColumnOption.class));
 
         while( input.nextFile() ){
             while(true){
