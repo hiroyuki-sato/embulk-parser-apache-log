@@ -1,0 +1,9 @@
+in:
+  type: file
+  path_prefix: example/sample.log
+  parser:
+    type: apache-log
+    format: combined
+out:
+  type: in
+  
