@@ -10,6 +10,7 @@ Embulk parser plugin for apache log (common, combined)
 ## Configuration
 
 - **format**: log format(common,combined) (string, default: combined)
+- **stop_on_invalid_record**: ignore invalid log entries (true, false) (boolean, default: true)
 
 ## Example
 
@@ -19,6 +20,7 @@ in:
   parser:
     type: apache-log
     format: common
+    stop_on_invalid_record: true
 ```
 
 ```
