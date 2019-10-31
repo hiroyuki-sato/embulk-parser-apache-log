@@ -32,9 +32,13 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Throwables;
 
+import org.slf4j.Logger;
+
 public class ApacheLogParserPlugin
         implements ParserPlugin
 {
+    private static final Logger logger = Exec.getLogger(ApacheLogParserPlugin.class);
+
     public enum LogFormat
     {
          combined("combined"),
@@ -58,6 +62,9 @@ public class ApacheLogParserPlugin
         @ConfigDefault("\"combined\"")
         public LogFormat getFormat();
 
+        @Config("stop_on_invalid_record")
+        @ConfigDefault("true")
+        Boolean getStopOnInvalidRecord();
     }
 
     @Override
@@ -123,7 +130,12 @@ public class ApacheLogParserPlugin
               accessLogEntryMatcher = accessLogPattern.matcher(line);
 
               if(!accessLogEntryMatcher.matches()){
-                throw new RuntimeException("unmatched line" + line);
+                if (task.getStopOnInvalidRecord()) {
+                  throw new RuntimeException("unmatched line" + line);
+                } else {
+                  logger.info("unable to parse line: " + line);
+                  continue;
+                }
               }
 
               pageBuilder.setString(0,accessLogEntryMatcher.group(1));
@@ -132,7 +144,12 @@ public class ApacheLogParserPlugin
               try {
                   pageBuilder.setTimestamp(3,time_parser.parse(accessLogEntryMatcher.group(4)));
               } catch(TimestampParseException ex) {
-                throw Throwables.propagate(ex);
+                if (task.getStopOnInvalidRecord()) {
+                  throw Throwables.propagate(ex);
+                } else {
+                  logger.info("unable to parse time from line: " + line);
+                  continue;
+                }
               }
               pageBuilder.setString(4,accessLogEntryMatcher.group(5));
               pageBuilder.setString(5,accessLogEntryMatcher.group(6));
